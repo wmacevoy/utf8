@@ -52,33 +52,3 @@ void utf8encval(unsigned char *utf8, unsigned val, int enclen) {
   }
   utf8[0]=utf8encmask[enclen-1]|val;
 }
-
-/*
-  switch(enclen) {
-  case 1:
-    utf8[0]=val;
-    return;
-  case 2:
-    utf8[1]=(0x80)|(val&0x3F);
-    val >>= 6;
-    utf8[0]=(0xC0)|(val);
-    return;
-  case 3:
-    utf8[2]=(0x80)|(val&0x3F);
-    val >>= 6;    
-    utf8[1]=(0x80)|(val&0x3F);
-    val >>= 6;
-    utf8[0]=(0xE0)|(val);
-    return;
-  case 4:
-    utf8[3]=(0x80)|(val&0x3F);
-    val >>= 6;    
-    utf8[2]=(0x80)|(val&0x3F);
-    val >>= 6;    
-    utf8[1]=(0x80)|(val&0x3F);
-    val >>= 6;
-    utf8[0]=(0xF0)|(val);
-    return;
-  }
-}
-*/
