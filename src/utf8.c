@@ -43,7 +43,17 @@ int utf8enclen(unsigned val) {
   return 4;
 }
 
+static unsigned char utf8encmask[] = {0x00,0xC0,0xE0,0xF0};
+
 void utf8encval(unsigned char *utf8, unsigned val, int enclen) {
+  for (int i=enclen-1; i>0; --i) {
+    utf8[i]=(0x80)|(val&0x3F);
+    val >>= 6;
+  }
+  utf8[0]=utf8encmask[enclen-1]|val;
+}
+
+/*
   switch(enclen) {
   case 1:
     utf8[0]=val;
@@ -71,3 +81,4 @@ void utf8encval(unsigned char *utf8, unsigned val, int enclen) {
     return;
   }
 }
+*/
