@@ -52,3 +52,34 @@ void utf8encval(unsigned char *utf8, unsigned val, int enclen) {
   }
   utf8[0]=utf8encmask[enclen-1]|val;
 }
+
+int utf8codecount(const unsigned char *utf8, int utf8len) {
+  return utf8codewrite(utf8,utf8len,NULL,0);
+}
+
+int utf8codewrite(const unsigned char *utf8, int utf8len, wchar_t *dest, int destlen) {
+  int ans = 0;
+  while (utf8len > 0) {
+    int declen=utf8declen(utf8,utf8len);
+    if (declen > 0) {
+      if (destlen > 0) {
+	dest[0]=utf8decval(utf8,declen);
+	--destlen;
+	++dest;
+      }
+      utf8 += declen;
+      utf8len -= declen;
+      ans += 1;
+    } else {
+      if (destlen > 0) {
+	dest[0]=utf8[0];
+	--destlen;
+	++dest;
+      }
+      utf8 += 1;
+      utf8len -= 1;
+      ans += 1;
+    }
+  }
+  return ans;
+}

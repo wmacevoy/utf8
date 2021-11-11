@@ -1,3 +1,4 @@
+
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -13,6 +14,60 @@ unsigned char b(const char *str) {
     ++str;
   }
   return x;
+}
+
+void utf8teststr(unsigned char *dst,int len,int ab) {
+  switch(len) {
+  case 1:
+    if (ab == 0) { snprintf(dst,len+1,"%c",b("0000-0000")); }
+    if (ab == 1) { snprintf(dst,len+1,"%c",b("0111-1111")); }
+    break;
+  case 2:
+    if (ab == 0) { snprintf(dst,len+1,"%c%c",b("1100-0010"),b("1000-0000")); }
+    if (ab == 1) { snprintf(dst,len+1,"%c%c",b("1101-1111"),b("1011-1111")); }
+    break;  
+  case 3:
+    if (ab == 0) {
+      snprintf(dst,len+1,"%c%c%c",
+	       b("1110-0000"),b("1010-0000"),b("1000-0000"));
+    }
+    if (ab == 1) {
+      snprintf(dst,len+1,"%c%c%c",
+	       b("1110-1111"),b("1011-1111"),b("1011-1111"));
+    }
+    break;  
+  case 4:
+    if (ab == 0) {
+      snprintf(dst,len+1,"%c%c%c%c",
+	       b("1111-0000"),b("1001-0000"),b("1000-0000"),b("1000-0000"));
+    }
+    if (ab == 1) {
+      snprintf(dst,len+1,"%c%c%c%c",
+	       b("1111-0111"),b("1011-1111"),b("1011-1111"),b("1011-1111"));
+    }
+    break;  
+  }
+}
+
+int utf8testval(int len,int ab) {
+  switch(len) {
+  case 1:
+    if (ab == 0) return 0x00;
+    if (ab == 1) return 0x7F;
+    break;
+  case 2:
+    if (ab == 0) return 0x80;
+    if (ab == 1) return 0x7FF;
+    break;  
+  case 3:
+    if (ab == 0) return 0x800;
+    if (ab == 1) return 0xFFFF;
+    break;  
+  case 4:
+    if (ab == 0) return 0x10000;
+    if (ab == 1) return 0x1FFFFF;
+    break;
+  }
 }
 
 FACTS(UTF8Len1) {
@@ -132,12 +187,38 @@ FACTS(UTF8Len4) {
   FACT(strncmp(ytmp,y8,len),==,0);
 }
 
+FACTS(enclen) {
+  unsigned char buf[1024];
+  FACT(utf8codecount("",0),==,0);
+  for (int len=1; len<=4; ++len) {
+    for (int ab=0; ab <= 1; ++ab) {
+      utf8teststr(buf,len,ab);
+      FACT(utf8codecount(buf,len),==,1);
+    }
+  }
+  for (int len1=1; len1<=4; ++len1) {
+    for (int ab1=0; ab1 <= 1; ++ab1) {
+      for (int len2=1; len2<=4; ++len2) {
+	for (int ab2=0; ab2 <= 1; ++ab2) {
+	  utf8teststr(buf,len1,ab1);
+	  utf8teststr(buf+len1,len2,ab2);
+	  FACT(utf8codecount(buf,len1+len2),==,2);
+	}
+      }
+    }
+  }
+}
+
+FACTS(FailureCase) {
+  unsigned char buf[1024];
+  int len1=1;
+  int len2=2;
+  int ab1=0;
+  int ab2=0;
+  utf8teststr(buf,len1,ab1);
+  utf8teststr(buf+len1,len2,ab2);
+  FACT(utf8codecount(buf,len1+len2),==,2);
+}
+
 FACTS_FINISHED
 FACTS_MAIN
-
-
-
-
-
-
-
