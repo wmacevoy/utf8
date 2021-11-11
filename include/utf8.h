@@ -21,6 +21,7 @@ int utf8decval(const unsigned char *utf8, int len);
 int utf8enclen(unsigned val);
 void utf8encval(unsigned char *utf8, unsigned val, int enclen);
 
-int utf8codecount(const unsigned char *utf8, int utf8len);
-int utf8codewrite(const unsigned char *utf8, int utf8len, wchar_t *dest, int destlen);
+int utf8decode(const unsigned char *utf8, int utf8len, wchar_t *wc, int wccap);
+int utf8encode(const wchar_t *wc, int wclen, unsigned char *utf8, int utf8cap);
+
 

@@ -1,7 +1,6 @@
 #define UTF8_C
 #include "utf8.h"
 
-
 unsigned UTF8_MINVAL[4] = { 0x00, 0x80,   0x800,  0x10000 };
 unsigned UTF8_MAXVAL[4] = { 0x7F, 0x7FF, 0xFFFF, 0x1FFFFF };
 
@@ -53,28 +52,24 @@ void utf8encval(unsigned char *utf8, unsigned val, int enclen) {
   utf8[0]=utf8encmask[enclen-1]|val;
 }
 
-int utf8codecount(const unsigned char *utf8, int utf8len) {
-  return utf8codewrite(utf8,utf8len,NULL,0);
-}
-
-int utf8codewrite(const unsigned char *utf8, int utf8len, wchar_t *dest, int destlen) {
+int utf8decode(const unsigned char *utf8, int utf8len, wchar_t *wc, int wccap) {
   int ans = 0;
   while (utf8len > 0) {
     int declen=utf8declen(utf8,utf8len);
     if (declen > 0) {
-      if (destlen > 0) {
-	dest[0]=utf8decval(utf8,declen);
-	--destlen;
-	++dest;
+      if (wccap > 0) {
+	wc[0]=utf8decval(utf8,declen);
+	--wccap;
+	++wc;
       }
       utf8 += declen;
       utf8len -= declen;
       ans += 1;
     } else {
-      if (destlen > 0) {
-	dest[0]=utf8[0];
-	--destlen;
-	++dest;
+      if (wccap > 0) {
+	wc[0]=utf8[0];
+	--wccap;
+	++wc;
       }
       utf8 += 1;
       utf8len -= 1;
@@ -83,3 +78,22 @@ int utf8codewrite(const unsigned char *utf8, int utf8len, wchar_t *dest, int des
   }
   return ans;
 }
+
+int utf8encode(const wchar_t *wc, int wclen, unsigned char *utf8, int utf8cap) {
+  int ans = 0;
+  while (wclen > 0) {
+    int enclen=utf8enclen(wc[0]);
+    ans += enclen;
+    if (enclen <= utf8cap) {
+	utf8encval(utf8, wc[0], enclen);
+	utf8cap -= enclen;
+	utf8 += enclen;
+    } else {
+      utf8cap = 0; // stop further writes
+    }
+    wc += 1;
+    wclen -= 1;
+  }
+  return ans;
+}
+

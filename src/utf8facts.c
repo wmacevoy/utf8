@@ -187,37 +187,50 @@ FACTS(UTF8Len4) {
   FACT(strncmp(ytmp,y8,len),==,0);
 }
 
-FACTS(enclen) {
-  unsigned char buf[1024];
-  FACT(utf8codecount("",0),==,0);
+FACTS(decode) {
+  unsigned char u1[80],u2[80];
+  wchar_t w1[80],w2[80];
+  
+  FACT(utf8decode("",0,NULL,0),==,0);
   for (int len=1; len<=4; ++len) {
     for (int ab=0; ab <= 1; ++ab) {
-      utf8teststr(buf,len,ab);
-      FACT(utf8codecount(buf,len),==,1);
+      for (int i=0; i<80; ++i) {
+	u1[i]=u2[i]=-1;
+	w1[i]=w2[i]=-1;
+      }
+      utf8teststr(u1,len,ab);
+      w1[0]=utf8testval(len,ab);
+      FACT(utf8decode(u1,len,NULL,0),==,1);
+      FACT(utf8encode(w1,1,NULL,0),==,len);
+      utf8decode(u1,len,w2,1);
+      utf8encode(w1,1,u2,len);
+      FACT(w1[0],==,w2[0]);
+      for (int i=0; i<len; ++i) FACT(u1[i],==,u2[i]);
     }
   }
   for (int len1=1; len1<=4; ++len1) {
     for (int ab1=0; ab1 <= 1; ++ab1) {
       for (int len2=1; len2<=4; ++len2) {
 	for (int ab2=0; ab2 <= 1; ++ab2) {
-	  utf8teststr(buf,len1,ab1);
-	  utf8teststr(buf+len1,len2,ab2);
-	  FACT(utf8codecount(buf,len1+len2),==,2);
+	  for (int i=0; i<80; ++i) {
+	    u1[i]=u2[i]=-1;
+	    w1[i]=w2[i]=-1;
+	  }
+	  utf8teststr(u1,len1,ab1);
+	  utf8teststr(u1+len1,len2,ab2);
+	  w1[0]=utf8testval(len1,ab1);
+	  w1[1]=utf8testval(len2,ab2);
+	  FACT(utf8decode(u1,len1+len2,NULL,0),==,2);
+	  FACT(utf8encode(w1,2,NULL,0),==,len1+len2);
+	  utf8decode(u1,len1+len2,w2,2);
+	  utf8encode(w1,2,u2,len1+len2);
+	  FACT(w1[0],==,w2[0]);
+	  FACT(w1[1],==,w2[1]);	  
+	  for (int i=0; i<len1+len2; ++i) FACT(u1[i],==,u2[i]);
 	}
       }
     }
   }
-}
-
-FACTS(FailureCase) {
-  unsigned char buf[1024];
-  int len1=1;
-  int len2=2;
-  int ab1=0;
-  int ab2=0;
-  utf8teststr(buf,len1,ab1);
-  utf8teststr(buf+len1,len2,ab2);
-  FACT(utf8codecount(buf,len1+len2),==,2);
 }
 
 FACTS_FINISHED
