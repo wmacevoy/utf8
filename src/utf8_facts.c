@@ -233,5 +233,19 @@ FACTS(decode) {
   }
 }
 
+FACTS(Suites) {
+  const wchar_t *wc=L"♣♦♥♠";
+  for (int i=0; i<4; ++i) {
+    char buf[16];
+    int utf8len = utf8enclen(wc[i]);
+    utf8encval(buf,wc[i],utf8len);
+    int utf8len2=utf8declen(buf,utf8len);
+    FACT(utf8len2,==,utf8len);
+    int wc2=utf8decval(buf,utf8len); 
+    FACT(wc2,==,wc[i]);
+    buf[utf8len]=0;
+  }
+}
+
 FACTS_FINISHED
 FACTS_MAIN
