@@ -16,7 +16,7 @@ unsigned char b(const char *str) {
   return x;
 }
 
-void utf8teststr(unsigned char *dst,int len,int ab) {
+void utf8teststr(char *dst,int len,int ab) {
   switch(len) {
   case 1:
     if (ab == 0) { snprintf(dst,len+1,"%c",b("0000-0000")); }
@@ -190,7 +190,7 @@ FACTS(UTF8Len4) {
 }
 
 FACTS(decode) {
-  unsigned char u1[80],u2[80];
+  char u1[80],u2[80];
   uint32_t w1[80],w2[80];
   
   FACT(utf8decode("",0,NULL,0),==,0);
