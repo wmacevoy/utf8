@@ -2,8 +2,8 @@
 #define UTF8_C
 #include "utf8.h"
 
-unsigned UTF8_MINVAL[4] = { 0x00, 0x80,   0x800,  0x10000 };
-unsigned UTF8_MAXVAL[4] = { 0x7F, 0x7FF, 0xFFFF, 0x1FFFFF };
+uint32_t UTF8_MINVAL[4] = { 0x00, 0x80,   0x800,  0x10000 };
+uint32_t UTF8_MAXVAL[4] = { 0x7F, 0x7FF, 0xFFFF, 0x1FFFFF };
 
 int utf8declen(const unsigned char *utf8, int n) {
   if (n <= 0) return -1;
@@ -19,11 +19,11 @@ int utf8declen(const unsigned char *utf8, int n) {
   return -1;
 }
 
-int utf8decval(const unsigned char *utf8, int len) {
+int32_t utf8decval(const unsigned char *utf8, int len) {
   if (len == 1) {
     return utf8[0];
   } else if (len > 0) {
-    unsigned val = utf8[0] & ~(0xFF << (7-len));
+    uint32_t val = utf8[0] & ~(0xFF << (7-len));
     for (int i=1; i<len; ++i) {
       val = (val  << 6) | (utf8[i] & 0x3F);
     }
@@ -45,7 +45,7 @@ int utf8enclen(unsigned val) {
 
 static unsigned char utf8encmask[] = {0x00,0xC0,0xE0,0xF0};
 
-void utf8encval(unsigned char *utf8, unsigned val, int enclen) {
+void utf8encval(unsigned char *utf8, uint32_t val, int enclen) {
   for (int i=enclen-1; i>0; --i) {
     utf8[i]=(0x80)|(val&0x3F);
     val >>= 6;
@@ -53,7 +53,7 @@ void utf8encval(unsigned char *utf8, unsigned val, int enclen) {
   utf8[0]=utf8encmask[enclen-1]|val;
 }
 
-int utf8decode(const unsigned char *utf8, int utf8len, wchar_t *wc, int wccap) {
+int utf8decode(const unsigned char *utf8, int utf8len, uint32_t *wc, int wccap) {
   int ans = 0;
   while (utf8len > 0) {
     int declen=utf8declen(utf8,utf8len);
@@ -80,7 +80,7 @@ int utf8decode(const unsigned char *utf8, int utf8len, wchar_t *wc, int wccap) {
   return ans;
 }
 
-int utf8encode(const wchar_t *wc, int wclen, unsigned char *utf8, int utf8cap) {
+int utf8encode(const uint32_t *wc, int wclen, unsigned char *utf8, int utf8cap) {
   int ans = 0;
   while (wclen > 0) {
     int enclen=utf8enclen(wc[0]);

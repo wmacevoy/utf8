@@ -191,7 +191,7 @@ FACTS(UTF8Len4) {
 
 FACTS(decode) {
   unsigned char u1[80],u2[80];
-  wchar_t w1[80],w2[80];
+  uint32_t w1[80],w2[80];
   
   FACT(utf8decode("",0,NULL,0),==,0);
   for (int len=1; len<=4; ++len) {
@@ -237,8 +237,10 @@ FACTS(decode) {
   }
 }
 
+
+
 FACTS(Suites) {
-  const wchar_t *wc=L"♣♦♥♠";
+  uint32_t wc [] = {0x2663, 0x2666, 0x2665, 0x2660};  
   for (int i=0; i<4; ++i) {
     char buf[16];
     int utf8len = utf8enclen(wc[i]);
