@@ -50,24 +50,26 @@ void utf8teststr(unsigned char *dst,int len,int ab) {
 }
 
 int utf8testval(int len,int ab) {
+  int val=-1;
   switch(len) {
   case 1:
-    if (ab == 0) return 0x00;
-    if (ab == 1) return 0x7F;
+    if (ab == 0) { val = 0x00; break; }
+    if (ab == 1) { val = 0x7F; break; }
     break;
   case 2:
-    if (ab == 0) return 0x80;
-    if (ab == 1) return 0x7FF;
+    if (ab == 0) { val = 0x80; break; }
+    if (ab == 1) { val = 0x7FF; break; }
     break;  
   case 3:
-    if (ab == 0) return 0x800;
-    if (ab == 1) return 0xFFFF;
+    if (ab == 0) { val = 0x800; break; }
+    if (ab == 1) { val = 0xFFFF; break; }
     break;  
   case 4:
-    if (ab == 0) return 0x10000;
-    if (ab == 1) return 0x1FFFFF;
+    if (ab == 0) { val = 0x10000; break; }
+    if (ab == 1) { val = 0x1FFFFF; break; }
     break;
   }
+  return val;
 }
 
 FACTS(UTF8Len1) {
@@ -199,7 +201,9 @@ FACTS(decode) {
 	w1[i]=w2[i]=-1;
       }
       utf8teststr(u1,len,ab);
-      w1[0]=utf8testval(len,ab);
+      int32_t wc32=utf8testval(len,ab);
+      w1[0]=wc32;
+      FACT(wc32,==,w1[0]);
       FACT(utf8decode(u1,len,NULL,0),==,1);
       FACT(utf8encode(w1,1,NULL,0),==,len);
       utf8decode(u1,len,w2,1);
