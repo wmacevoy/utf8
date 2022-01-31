@@ -239,7 +239,7 @@ FACTS(decode) {
 
 
 
-FACTS(Suites) {
+FACTS(Suits) {
   uint32_t wc [] = {0x2663, 0x2666, 0x2665, 0x2660};  
   for (int i=0; i<4; ++i) {
     char buf[16];
@@ -259,7 +259,7 @@ FACTS_REGISTER_ALL() {
     FACTS_REGISTER(UTF8Len3);
     FACTS_REGISTER(UTF8Len4);
     FACTS_REGISTER(decode);
-    FACTS_REGISTER(Suites);
+    FACTS_REGISTER(Suits);
 }
 
 FACTS_MAIN
