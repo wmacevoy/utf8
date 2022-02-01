@@ -9,7 +9,7 @@ check : all
 
 .PHONY: expected
 expected : all
-	bin/utf8_facts >expected/utf8_facts.out
+	bin/utf8_facts >expected/utf8_facts.out || true
 
 bin/utf8_facts : src/utf8_facts.c src/utf8.c include/utf8.h
 	mkdir -p bin
