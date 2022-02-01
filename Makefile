@@ -5,7 +5,10 @@ all : bin/utf8_facts
 
 .PHONY: check
 check : all
-	bin/utf8_facts | diff - utf8_facts.expected
+	bin/utf8_facts | diff - expected/utf8_facts.out
+
+expected : all
+	bin/utf8_facts >expected/utf8_facts.out || true
 
 bin/utf8_facts : src/utf8_facts.c src/utf8.c include/utf8.h
 	mkdir -p bin

@@ -8,13 +8,13 @@ src/utf8_facts.c 162: UTF8Len4 facts check started
 src/utf8_facts.c 162: UTF8Len4 facts check ended
 src/utf8_facts.c 192: decode facts check started
 src/utf8_facts.c 192: decode facts check ended
-src/utf8_facts.c 242: Suites facts check started
-src/utf8_facts.c 242: Suites facts check ended
+src/utf8_facts.c 242: Suits facts check started
+src/utf8_facts.c 242: Suits facts check ended
 facts summary.
 facts check UTF8Len1 [1;32mpassed[0m
 facts check UTF8Len2 [1;32mpassed[0m
 facts check UTF8Len3 [1;32mpassed[0m
 facts check UTF8Len4 [1;32mpassed[0m
 facts check decode [1;32mpassed[0m
-facts check Suites [1;32mpassed[0m
+facts check Suits [1;32mpassed[0m
 691 (100.0%) truths and 0 (0.0%) fictions checked.
