@@ -16,12 +16,15 @@ jobs:
       uses: actions/checkout@v2
       with:
         path: main
+
     - name: Checkout facts
       uses: actions/checkout@v2
       with:
         repository: wmacevoy/facts
 	path: facts
+
     - name: make all
       run: make -C main all
+
     - name: make check
       run: make -C main check
