@@ -1,6 +1,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "facts.h"
 #include "utf8.h"
@@ -189,6 +190,73 @@ FACTS(UTF8Len4) {
   FACT(strncmp(ytmp,y8,len),==,0);
 }
 
+FACTS(UTF8Len5And6) {
+  // Verify boundaries for extended 5- and 6-byte sequences
+  unsigned len;
+  char x8[16], y8[16], tmp[16];
+  uint32_t xc, yc;
+
+  // 5-byte
+  len = 5;
+  xc = UTF8_MINVAL[len-1];
+  yc = UTF8_MAXVAL[len-1];
+  FACT(len,==,utf8enclen(xc));
+  utf8encval(x8, xc, len);
+  FACT(len,==,utf8declen(x8, len));
+  FACT(xc,==,utf8decval(x8, len));
+  utf8encval(tmp, xc, len);
+  FACT(strncmp(tmp, x8, len),==,0);
+
+  FACT(len,==,utf8enclen(yc));
+  utf8encval(y8, yc, len);
+  FACT(len,==,utf8declen(y8, len));
+  FACT(yc,==,utf8decval(y8, len));
+  utf8encval(tmp, yc, len);
+  FACT(strncmp(tmp, y8, len),==,0);
+
+  // 6-byte
+  len = 6;
+  xc = UTF8_MINVAL[len-1];
+  yc = UTF8_MAXVAL[len-1];
+  FACT(len,==,utf8enclen(xc));
+  utf8encval(x8, xc, len);
+  FACT(len,==,utf8declen(x8, len));
+  FACT(xc,==,utf8decval(x8, len));
+  utf8encval(tmp, xc, len);
+  FACT(strncmp(tmp, x8, len),==,0);
+
+  FACT(len,==,utf8enclen(yc));
+  utf8encval(y8, yc, len);
+  FACT(len,==,utf8declen(y8, len));
+  FACT(yc,==,utf8decval(y8, len));
+  utf8encval(tmp, yc, len);
+  FACT(strncmp(tmp, y8, len),==,0);
+}
+
+FACTS(InvalidAndCapacity) {
+  // invalid leading continuation byte
+  char bad1[] = {(char)0x80, 0};
+  uint32_t out[4];
+  FACT(utf8declen(bad1, 1),==,-1);
+  FACT(utf8decode(bad1, 1, out, 4),==,1);
+  FACT(out[0],==,(uint8_t)bad1[0]);
+
+  // truncated 2-byte sequence: C2 (missing continuation)
+  char bad2[] = {(char)0xC2, 0};
+  FACT(utf8declen(bad2, 1),==,-1);
+  FACT(utf8decode(bad2, 1, out, 4),==,1);
+  FACT(out[0],==,(uint8_t)bad2[0]);
+
+  // capacity handling: encode into too-small buffer
+  uint32_t u32seq[] = {0x24, 0x20AC, 0x10348}; // '$', '€', U+10348
+  char buf[8];
+  int need = utf8encode(u32seq, 3, NULL, 0);
+  FACT(need,==,1 + 3 + 4);
+  int wrote = utf8encode(u32seq, 3, buf, 2); // only room for first codepoint
+  FACT(wrote,==,need);
+  FACT((unsigned char)buf[0],==,0x24);
+}
+
 FACTS(decode) {
   char u1[80],u2[80];
   uint32_t w1[80],w2[80];
@@ -260,6 +328,8 @@ FACTS_REGISTER_ALL() {
     FACTS_REGISTER(UTF8Len4);
     FACTS_REGISTER(decode);
     FACTS_REGISTER(Suits);
+    FACTS_REGISTER(InvalidAndCapacity);
+    FACTS_REGISTER(UTF8Len5And6);
 }
 
 FACTS_MAIN
