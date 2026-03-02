@@ -8,15 +8,27 @@ libutf8 provides two build systems that coexist in the repository:
 
 ### Makefile (primary, Unix)
 
-The `Makefile` is the primary build system for Unix-like platforms (Linux, macOS, BSD). It builds:
+The `Makefile` is the primary build system for Unix-like platforms (Linux, macOS, BSD).
 
-- `libutf8.a` — static library
-- `libutf8.so.X.Y.Z` (Linux) or `libutf8.X.dylib` (macOS) — shared library with soname/install_name versioning
-- `bin/utf8_facts` — test binary
+**The library itself has zero dependencies.** The test framework
+([wmacevoy/facts](https://github.com/wmacevoy/facts)) is the only
+external dependency and is only needed for `make check`. It is included
+as a git submodule at `vendor/facts` but is not required for building or
+installing the library.
 
-Standard targets: `all`, `check`, `install`, `uninstall`, `clean`, `expected`.
+| Target | What it builds | Needs `vendor/facts`? |
+|--------|---------------|----------------------|
+| `make` / `make all` | `libutf8.a` + shared library | No |
+| `make install` | Installs libs, header, pkg-config | No |
+| `make check` | Builds and runs test binary (`bin/utf8_facts`) | Yes |
+| `make expected` | Refreshes golden test output | Yes |
+| `make clean` | Removes all build artifacts | No |
 
 All install targets respect the standard GNU variables (`DESTDIR`, `PREFIX`, `LIBDIR`, `INCLUDEDIR`) that distro packagers rely on. This is what makes `dpkg-buildpackage`, `abuild`, and Homebrew formulas work without patches.
+
+**For users:** `git clone` + `make` + `make install` works without the submodule.
+
+**For developers:** `git clone --recurse-submodules` (or `git submodule update --init` after cloning) to get the test framework, then `make check`.
 
 **Why a Makefile and not just CMake?** For a single-source-file C library with zero dependencies, a Makefile is the simplest correct solution. Unix distro packagers (Debian, Alpine, Homebrew) are all comfortable with Makefiles. CMake adds a configure step and a build directory that is unnecessary overhead for the common case.
 
@@ -32,6 +44,8 @@ The CMake build produces the same artifacts as the Makefile, plus:
 
 - CMake package config files (`utf8Config.cmake`, `utf8Targets.cmake`) enabling `find_package(utf8)` in downstream projects
 - pkg-config `.pc` file (same as the Makefile produces)
+
+Tests are opt-in via `-DUTF8_BUILD_TESTS=ON` and require the `vendor/facts` submodule. The default CMake build (like the default Makefile build) only produces the libraries.
 
 **Why not CMake only?** CMake is the right choice for complex projects with many dependencies and platform-specific logic. For a library this small, it adds complexity (out-of-source builds, generator selection, cache variables) that the Makefile avoids. Both are maintained because they serve different audiences.
 
@@ -53,6 +67,8 @@ The CMake build produces the same artifacts as the Makefile, plus:
 ```sh
 dpkg-buildpackage -us -uc
 ```
+
+The Debian build only builds libraries (`make all`) and does not run tests, since the `vendor/facts` submodule is a test-only dependency that is not a Debian build-dep. Tests are run separately in CI before the packaging jobs start.
 
 **Key files:**
 
@@ -156,12 +172,14 @@ Both must be updated together when releasing a new version. The shared library s
 
 Pushing a version tag (`v*`) triggers the release workflow, which:
 
-1. **Tests** — checks out `utf8` and `wmacevoy/facts`, runs `make check`
-2. **Builds .deb** — `dpkg-buildpackage` on Ubuntu
-3. **Builds .apk** — `abuild` in an Alpine Docker container
-4. **Builds Windows zip** — CMake + MSVC on `windows-latest`
+1. **Tests** — checks out with submodules, runs `make check` (the only step that needs `vendor/facts`)
+2. **Builds .deb** — `dpkg-buildpackage` on Ubuntu (builds libraries only, no test dependency)
+3. **Builds .apk** — `abuild` in an Alpine Docker container (builds libraries only via CMake)
+4. **Builds Windows zip** — CMake + MSVC on `windows-latest` (builds libraries only)
 5. **Creates GitHub Release** — uploads all artifacts with install instructions and the source tarball `sha256`
 6. **Publishes apt repo** — (optional) deploys a signed apt repository to GitHub Pages via `reprepro`
+
+The packaging jobs (2-4) depend on the test job passing first but do not themselves need the test framework. This keeps the test dependency (`vendor/facts`) out of the packaging pipeline.
 
 ### apt repo via GitHub Pages (optional setup)
 

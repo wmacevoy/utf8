@@ -27,11 +27,19 @@ Behavior notes:
 - If `utf8declen` returns -1, `utf8decode` consumes 1 byte and outputs that raw byte value
 - `utf8encode` never writes partial sequences; if capacity is exceeded, it stops writing but still returns the full required length
 
-Build and test:
+Build and install:
 
 ```
-make check   # build and run facts tests; compares against `expected/`
-make expected # refresh golden output after changes
+make && sudo make install   # build and install libraries + header
+```
+
+The library has no dependencies. To run the tests, initialize the
+`vendor/facts` submodule first:
+
+```
+git submodule update --init    # fetch the facts test framework
+make check                     # build tests and run against expected/
+make expected                  # refresh golden output after changes
 ```
 
 License: Public Domain (Unlicense) (see `LICENSE`).
