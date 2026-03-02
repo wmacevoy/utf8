@@ -139,6 +139,29 @@ choco install libutf8 --source .
 
 **Requires:** CMake and a C compiler (MSVC or MinGW) installed on the build machine. The install script downloads the source, builds with CMake, and installs to the Chocolatey lib directory.
 
+### Cosmopolitan Libc (any platform)
+
+**Why:** [Cosmopolitan Libc](https://github.com/jart/cosmopolitan) produces Actually Portable Executables (APE) that run natively on Linux, macOS, Windows, FreeBSD, OpenBSD, and NetBSD from a single binary. For a pure C99 library like libutf8 (no system calls, no I/O, no dynamic allocation), it works without any code changes.
+
+Cosmopolitan is static-only — there is no shared library support.
+
+**How to build:**
+
+```sh
+make cosmo          # build libutf8.a with cosmocc
+make cosmo-check    # build and run tests as a portable executable
+```
+
+This requires `cosmocc` and `cosmoar` on your `PATH`. Install from https://cosmo.zip/ or build from source.
+
+**Linking against the library:**
+
+```sh
+cosmocc -Iinclude -o myapp myapp.c libutf8.a
+```
+
+The resulting `myapp` binary runs on Linux, macOS, Windows, FreeBSD, OpenBSD, and NetBSD without recompilation.
+
 ## Package managers NOT included (and why)
 
 | Manager | Why not | What to do |

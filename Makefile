@@ -96,6 +96,15 @@ endif
 	rm -f $(DESTDIR)$(LIBDIR)/$(SOLINK)
 	rm -f $(DESTDIR)$(PKGCONFIGDIR)/utf8.pc
 
+# Cosmopolitan Libc (Actually Portable Executable) — static only
+.PHONY: cosmo
+cosmo:
+	$(MAKE) CC=cosmocc AR=cosmoar $(STATIC_LIB)
+
+.PHONY: cosmo-check
+cosmo-check:
+	$(MAKE) CC=cosmocc AR=cosmoar check
+
 .PHONY: clean
 clean:
 	rm -f src/*.o $(STATIC_LIB) $(SHARED_LIB) libutf8.so* libutf8*.dylib utf8.pc
