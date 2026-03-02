@@ -38,10 +38,7 @@ TEST_SRC = src/utf8_facts.c
 FACTS_SRC = vendor/facts/src/facts.c
 TEST_CFLAGS = $(CFLAGS) -Ivendor/facts/include
 
-.PHONY: libs
-libs: $(STATIC_LIB) $(SHARED_LIB)
-
-all: libs $(TEST_BIN)
+all: $(STATIC_LIB) $(SHARED_LIB)
 
 $(LIB_OBJ): $(LIB_SRC) include/utf8.h
 	$(CC) $(CFLAGS) -c -o $@ $<

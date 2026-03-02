@@ -4,7 +4,7 @@
 	dh $@
 
 override_dh_auto_build:
-	$(MAKE) libs CFLAGS="-g -O2 -Iinclude"
+	$(MAKE) CFLAGS="-g -O2 -Iinclude"
 
 override_dh_auto_install:
 	$(MAKE) install DESTDIR=$(CURDIR)/debian/tmp PREFIX=/usr
