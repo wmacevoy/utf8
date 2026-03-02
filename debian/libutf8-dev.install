@@ -1,0 +1,4 @@
+usr/include/utf8.h
+usr/lib/*/libutf8.a
+usr/lib/*/libutf8.so
+usr/lib/*/pkgconfig/utf8.pc

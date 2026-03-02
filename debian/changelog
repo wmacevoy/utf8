@@ -1,0 +1,8 @@
+libutf8 (1.0.0-1) unstable; urgency=low
+
+  * Initial release.
+  * Permissive UTF-8 encode/decode for unsigned 32-bit values.
+  * Supports 1-6 byte sequences (up to 31 bits).
+  * Returns 0 from utf8enclen for unencodable values (>0x7FFFFFFF).
+
+ -- Warren MacEvoy <wmacevoy@gmail.com>  Mon, 02 Mar 2026 00:00:00 +0000

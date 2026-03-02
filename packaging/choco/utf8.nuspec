@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <id>libutf8</id>
+    <version>1.0.0</version>
+    <title>libutf8 - Permissive UTF-8 Library</title>
+    <authors>Warren MacEvoy</authors>
+    <projectUrl>https://github.com/wmacevoy/utf8</projectUrl>
+    <licenseUrl>https://unlicense.org/</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Small permissive UTF-8 encode/decode library. Supports 1-6 byte sequences (up to 31-bit values). Decoding is permissive: invalid bytes are passed through as their raw value.</description>
+    <tags>utf8 unicode encoding c library</tags>
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+  </files>
+</package>

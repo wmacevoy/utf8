@@ -1,0 +1,28 @@
+Source: libutf8
+Section: libs
+Priority: optional
+Maintainer: Warren MacEvoy <wmacevoy@gmail.com>
+Build-Depends: debhelper-compat (= 13)
+Standards-Version: 4.6.0
+Homepage: https://github.com/wmacevoy/utf8
+
+Package: libutf8-1
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Small permissive UTF-8 encode/decode library
+ Encodes and decodes sequences of unsigned 32-bit integers to and from
+ a UTF-8-style byte stream. Supports 1 through 6 byte sequences (up to
+ 31-bit values). Decoding is permissive: invalid bytes are passed through
+ as their raw value.
+
+Package: libutf8-dev
+Section: libdevel
+Architecture: any
+Depends: libutf8-1 (= ${binary:Version}), ${misc:Depends}
+Description: Small permissive UTF-8 encode/decode library (development files)
+ Encodes and decodes sequences of unsigned 32-bit integers to and from
+ a UTF-8-style byte stream. Supports 1 through 6 byte sequences (up to
+ 31-bit values). Decoding is permissive: invalid bytes are passed through
+ as their raw value.
+ .
+ This package contains the header files and static library for development.
