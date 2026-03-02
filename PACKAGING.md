@@ -150,11 +150,91 @@ The version (`1.0.0`) is defined in two places:
 
 Both must be updated together when releasing a new version. The shared library soname uses only the major version (`libutf8.so.1`), so minor and patch releases are ABI-compatible drop-in replacements.
 
+## CI/CD — GitHub Actions release workflow
+
+**Location:** `.github/workflows/release.yml`
+
+Pushing a version tag (`v*`) triggers the release workflow, which:
+
+1. **Tests** — checks out `utf8` and `wmacevoy/facts`, runs `make check`
+2. **Builds .deb** — `dpkg-buildpackage` on Ubuntu
+3. **Builds .apk** — `abuild` in an Alpine Docker container
+4. **Builds Windows zip** — CMake + MSVC on `windows-latest`
+5. **Creates GitHub Release** — uploads all artifacts with install instructions and the source tarball `sha256`
+6. **Publishes apt repo** — (optional) deploys a signed apt repository to GitHub Pages via `reprepro`
+
+### apt repo via GitHub Pages (optional setup)
+
+The `apt-repo` job is gated behind the repository variable `ENABLE_APT_REPO=true`. When enabled, it publishes a signed Debian repository to GitHub Pages so users can install with:
+
+```sh
+# Download the signing key
+curl -fsSL https://wmacevoy.github.io/utf8/utf8.gpg \
+  | sudo tee /usr/share/keyrings/utf8.gpg > /dev/null
+
+# Add the repository
+echo "deb [signed-by=/usr/share/keyrings/utf8.gpg] \
+  https://wmacevoy.github.io/utf8 stable main" \
+  | sudo tee /etc/apt/sources.list.d/utf8.list
+
+sudo apt update && sudo apt install libutf8-dev
+```
+
+**One-time setup:**
+
+1. Generate a GPG signing key:
+
+   ```sh
+   gpg --batch --gen-key <<EOF
+   %no-protection
+   Key-Type: RSA
+   Key-Length: 4096
+   Name-Real: libutf8 repo signing key
+   Name-Email: wmacevoy@gmail.com
+   Expire-Date: 0
+   EOF
+   ```
+
+2. Export the private key and add it as the repository secret `GPG_PRIVATE_KEY`:
+
+   ```sh
+   gpg --armor --export-secret-keys
+   # Copy output → GitHub repo Settings → Secrets → GPG_PRIVATE_KEY
+   ```
+
+3. Export the public key and commit it to the repository so users can download it:
+
+   ```sh
+   gpg --armor --export > apt/utf8.gpg
+   ```
+
+4. Enable GitHub Pages: Settings → Pages → Source: **GitHub Actions**
+
+5. Set the repository variable `ENABLE_APT_REPO` to `true`: Settings → Variables → Actions → New variable
+
+### Homebrew tap
+
+The Homebrew formula lives in `packaging/homebrew/utf8.rb`. To serve it to users:
+
+1. Create a separate repository: `wmacevoy/homebrew-utf8`
+2. Copy `packaging/homebrew/utf8.rb` to `Formula/utf8.rb` in that repo
+3. After each release, update the `sha256` in the formula with the value printed in the GitHub Release notes
+
+Users then install with:
+
+```sh
+brew tap wmacevoy/utf8
+brew install utf8
+```
+
 ## Release checklist
 
-1. Update version in `Makefile` and `CMakeLists.txt`
-2. Update `debian/changelog` with new version and changes
-3. Tag the release: `git tag v1.0.0`
-4. Create a GitHub release with the tag
-5. Update `sha256` in the Homebrew formula and `sha512sums` in the APKBUILD with the tarball hash
-6. Build and publish packages for each target platform
+1. Update version in `Makefile`, `CMakeLists.txt`, and `debian/changelog`
+2. Commit, tag, and push:
+   ```sh
+   git tag v1.0.0
+   git push origin v1.0.0
+   ```
+3. The release workflow runs automatically and creates the GitHub Release
+4. Update the Homebrew formula `sha256` with the value from the release notes
+5. (If using apt repo) Verify the Pages deployment at `https://wmacevoy.github.io/utf8`
