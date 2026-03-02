@@ -12,19 +12,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout main
-      uses: actions/checkout@v2
+    - name: Checkout
+      uses: actions/checkout@v4
       with:
-        path: main
-
-    - name: Checkout facts
-      uses: actions/checkout@v2
-      with:
-        repository: wmacevoy/facts
-        path: facts
+        submodules: true
 
     - name: make all
-      run: make -C main all
+      run: make all
 
     - name: make check
-      run: make -C main check
+      run: make check

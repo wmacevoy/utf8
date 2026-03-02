@@ -35,10 +35,13 @@ LIB_PIC = src/utf8.pic.o
 # Test target
 TEST_BIN = bin/utf8_facts
 TEST_SRC = src/utf8_facts.c
-FACTS_SRC = ../facts/src/facts.c
-TEST_CFLAGS = $(CFLAGS) -I../facts/include
+FACTS_SRC = vendor/facts/src/facts.c
+TEST_CFLAGS = $(CFLAGS) -Ivendor/facts/include
 
-all: $(STATIC_LIB) $(SHARED_LIB) $(TEST_BIN)
+.PHONY: libs
+libs: $(STATIC_LIB) $(SHARED_LIB)
+
+all: libs $(TEST_BIN)
 
 $(LIB_OBJ): $(LIB_SRC) include/utf8.h
 	$(CC) $(CFLAGS) -c -o $@ $<
