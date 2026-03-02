@@ -66,7 +66,11 @@ int utf8enclen(uint32_t val)
   {
     return 5;
   }
-  return 6; // supports up to 0x7FFFFFFF
+  else if (val < 0x80000000)
+  {
+    return 6;
+  }
+  return 0; // unencodable (>31 bits)
 }
 
 static const unsigned char utf8encmask[] = {0x00, 0xC0, 0xE0, 0xF0, 0xF8, 0xFC};
@@ -121,16 +125,19 @@ int utf8encode(const uint32_t *u32, int u32len, char *utf8, int utf8cap)
   while (u32len > 0)
   {
     int enclen = utf8enclen(u32[0]);
-    ans += enclen;
-    if (enclen <= utf8cap)
+    if (enclen > 0)
     {
-      utf8encval(utf8, u32[0], enclen);
-      utf8cap -= enclen;
-      utf8 += enclen;
-    }
-    else
-    {
-      utf8cap = 0; // stop further writes
+      ans += enclen;
+      if (enclen <= utf8cap)
+      {
+        utf8encval(utf8, u32[0], enclen);
+        utf8cap -= enclen;
+        utf8 += enclen;
+      }
+      else
+      {
+        utf8cap = 0; // stop further writes
+      }
     }
     u32 += 1;
     u32len -= 1;
